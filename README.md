@@ -1,6 +1,6 @@
 # AtomicMail Autoreg
 
-#### A script that automatically opens an browser window and creates a mailbox in the AtomicMail.io service
+#### A script that automatically opens an browser window and creates a mailbox in the [AtomicMail.io](https://atomicmail.io/) service
 
 ## Features
 
@@ -20,18 +20,18 @@
 pip install selenium webdriver_manager
 ```
 
-3. Check compatible the driver version with your browser:
+3. Check the compatibility of the driver version with your browser and place it in the script directory:
 
-	For *Microsoft Edge*:
+	For **Microsoft Edge**:
 	Check version `edge://settings/help` and download [Edge WebDriver](https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/) matching your Edge version
 
-	For *Chrome*/*Brave*:
+	For **Chrome**/**Brave**:
 	Check version `chrome://settings/helpDownload` and download [СhromeDriver](https://developer.chrome.com/docs/chromedriver/downloads) matching your Chrome/Brave version
 
 4. Run the script by double clicking or in the terminal/command prompt:
 
 ```
-python AutoregEdge.py # For Edge version
+python AutoregEdge.py
 ```
 
 5. Manually solve the CAPTCHA when prompted. Script will automatically continue after solving.
