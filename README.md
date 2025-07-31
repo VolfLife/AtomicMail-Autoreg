@@ -6,6 +6,8 @@
 
 - Supports Edge/Chrome/Brave/Firefox browsers
 
+- Account registration cycle
+
 - Automatic form filling
 
 - Credentials auto-saving
