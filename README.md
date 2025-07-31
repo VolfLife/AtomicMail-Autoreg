@@ -34,7 +34,7 @@ pip install selenium webdriver_manager
 	
 	For **Firefox**:
 
-	Check version and download [GeckoDriver](https://github.com/mozilla/geckodriver/releases) matching your Firefox version
+	Check version (open the browser and click on the menu button (three horizontal lines) in the top right corner, select "Help" and then "About Firefox") and download [GeckoDriver](https://github.com/mozilla/geckodriver/releases) matching your Firefox version
 
 5. Run the script by double clicking or in the terminal/command prompt:
 
