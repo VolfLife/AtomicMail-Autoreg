@@ -170,7 +170,7 @@ try:
     # 9. Сохранение данных в файл
     filename = f"autoreg_{random.randint(1000, 9999)}.txt"
     with open(filename, "w") as file:
-        file.write(f"login: {email}@atomicmail.io\npassword: {password}\n{email}:{password}")
+        file.write(f"login: {email}@atomicmail.io\npassword: {password}\n{email}@atomicmail.io:{password}")
     print(f"Данные сохранены в {filename}")
 
     # Авторизация в новом окне
