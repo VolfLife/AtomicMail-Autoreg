@@ -4,7 +4,7 @@
 
 ## Features
 
-- Supports Chrome/Edge/Brave browsers
+- Supports Edge/Chrome/Brave/Firefox browsers
 
 - Automatic form filling
 
@@ -27,6 +27,9 @@ pip install selenium webdriver_manager
 
 	For **Chrome**/**Brave**:
 	Check version `chrome://settings/helpDownload` and download [СhromeDriver](https://developer.chrome.com/docs/chromedriver/downloads) matching your Chrome/Brave version
+	
+	For **Firefox**:
+	Check version and download [GeckoDriver](https://github.com/mozilla/geckodriver/releases) matching your Firefox version
 
 4. Run the script by double clicking or in the terminal/command prompt:
 
