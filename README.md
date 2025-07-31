@@ -10,6 +10,8 @@
 
 - Credentials auto-saving
 
+- Removing the created account
+
 ## Usage
 
 1. Install [Python 3.6+](https://www.python.org/downloads/windows/) and pip
@@ -42,4 +44,4 @@ python AutoregEdge.py
 
 5. Manually solve the CAPTCHA when prompted. Script will automatically continue after solving.
 
-6. Credentials will be saved in `autoreg_XXXX.txt` file in the script directory.
+6. Credentials will be saved in `autoreg_XXXXXXXXX.txt` file in the script directory.
