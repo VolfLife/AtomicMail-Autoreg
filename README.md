@@ -6,7 +6,7 @@
 
 - Supports Edge/Chrome/Brave/Firefox browsers
 
-- Account registration cycle
+- Automatic account registration cycle
 
 - Automatic form filling
 
