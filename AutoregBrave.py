@@ -65,9 +65,14 @@ def main():
                         print("Аккаунт был успешно удален / The account was successfully deleted")
                     else:
                         print("Не удалось удалить аккаунт / Failed to remove the account")                
-                input("\nНажмите Enter чтобы закрыть браузер... / Click Enter to close the browser ...")
-                driver.quit()
-                break
+                choice = input("\nСоздать еще один аккаунт? / Create another account? (y/n): ").lower()
+                if choice == 'y':
+                    driver.quit()
+                    continue
+                else:
+                    input("\nНажмите Enter чтобы закрыть браузер... / Click Enter to close the browser ...")
+                    driver.quit()
+                    break
         else:
             input("\nНажмите Enter чтобы закрыть браузер... / Click Enter to close the browser ...")
             driver.quit()
@@ -233,7 +238,6 @@ def delete_account(driver, password):
             EC.element_to_be_clickable((By.XPATH, '//button[contains(text(), "Delete my account")]'))
         ).click()
         
-        print("Аккаунт успешно удален! / The account is successfully deleted!")
         return True
         
     except Exception as e:
