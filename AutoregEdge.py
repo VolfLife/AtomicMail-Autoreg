@@ -39,7 +39,7 @@ def main():
 
     # Настройки для Edge
     edge_options = Options()
-    edge_options.add_argument("--window-size=1920,1080")
+    edge_options.add_argument("--start-maximized")
     edge_options.add_experimental_option("detach", True)  # Чтобы браузер не закрывался
 
     while True:
