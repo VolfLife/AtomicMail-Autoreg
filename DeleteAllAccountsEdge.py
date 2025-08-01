@@ -39,6 +39,16 @@ def login_account(driver, email, password):
             EC.presence_of_element_located((By.NAME, "password"))
         ).send_keys(password)
         driver.find_element(By.XPATH, '//button[contains(., "Sign In")]').click()
+                
+        # Проверка на ошибку "Incorrect password or username"
+        try:
+            error_message = WebDriverWait(driver, 5).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, 'p._errorMessage_so3dh_74')))
+            if error_message.text == "Incorrect password or username":
+                print(f"Ошибка авторизации: неверный логин или пароль для {email} / Authorization error: incorrect login or password for {email}")
+                return False
+        except:
+            pass  # Элемент с ошибкой не найден — значит, авторизация успешна
         
         print(f"\nАвторизация успешна для {email}@atomicmail.io / Authorization successful for {email}@atomicmail.io")
         return True
@@ -46,7 +56,7 @@ def login_account(driver, email, password):
     except Exception as e:
         print(f"Ошибка при авторизации / Error during authorization: {str(e)}")
         return False
-
+        
 def delete_account(driver, password):
     try:
         print("\nНачинаем процесс удаления аккаунта... / Let's start the account deletion process...")
@@ -121,6 +131,8 @@ def main():
             # Логинимся
             if not login_account(driver, email, password):
                 print(f"Не удалось войти в аккаунт {email} / Failed to log into your account {email}")
+                os.remove(file_path)
+                print(f"Файл {file_path} удален / File {file_path} has been deleted")
                 driver.quit()
                 continue
 
@@ -132,6 +144,8 @@ def main():
                 print(f"Файл {file_path} удален / File {file_path} has been deleted")
             else:
                 print(f"Не удалось удалить аккаунт {email} / Failed to delete account {email}")
+                os.remove(file_path)
+                print(f"Файл {file_path} удален / File {file_path} has been deleted")
 
             # Закрываем браузер
             driver.quit()
