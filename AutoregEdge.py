@@ -9,6 +9,7 @@ from webdriver_manager.microsoft import EdgeChromiumDriverManager
 from selenium.webdriver.edge.service import Service
 from selenium.webdriver.edge.options import Options
 import random
+import msvcrt
 import string
 import time
 
@@ -52,13 +53,36 @@ def main():
         success, email, password = register_account(driver)
     
         if success:
-            # Запрос на создание еще одного аккаунта
-            choice = input("\nСоздать еще один аккаунт? / Create another account? (y/n): ").lower()
+            timeout = 15  # Время ожидания в секундах
+            print(f"\nСоздать еще один аккаунт? / Create another account? (y/n) [Автоматический выбор 'y' через {timeout} сек.]: ", end='', flush=True)
+            
+            start_time = time.time()
+            choice = None
+            
+            while (time.time() - start_time) < timeout:
+                remaining = int(timeout - (time.time() - start_time))
+                print(f"\rОсталось: {remaining} сек. / Time left: {remaining} sec.", end='', flush=True)
+                
+                if msvcrt.kbhit():  # Если была нажата клавиша
+                    char = msvcrt.getch().decode('utf-8').lower()
+                    if char == 'y':
+                        choice = char
+                        break
+                    else:
+                        choice = "close"
+                        break
+                time.sleep(0.1)  # Небольшая задержка, чтобы не нагружать CPU
+            
+            if choice is None:
+                print("\n\nВремя вышло, продолжаем... / Time's up, continuing...")
+                choice = 'y'
+            else:
+                print("\n")  # Переход на новую строку после ввода
+            
             if choice == 'y':
                 driver.quit()
                 continue
             else:
-                # Здесь будет реализовано удаление аккаунта при необходимости
                 delete_choice = input("Удалить созданный аккаунт? / Delete the created account? (y/n): ").lower()
                 if delete_choice == 'y':
                     if delete_account(driver, password):
