@@ -220,7 +220,7 @@ def register_account(driver):
 
         # 9. Сохранение данных в файл
         random_id = ''.join(random.choices(string.ascii_letters + string.digits, k=9))
-        filename = f"autoreg_{random_id}.txt"
+        filename = f"autoreg_{email}.txt"
         with open(filename, "w") as file:
             file.write(f"login: {email}@atomicmail.io\npassword: {password}\n{email}@atomicmail.io:{password}")
         print(f"Данные сохранены в {filename}")
