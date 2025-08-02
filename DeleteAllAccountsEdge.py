@@ -106,7 +106,7 @@ def delete_account(driver, password):
 def main():
     # Настройки для Edge
     edge_options = Options()
-    edge_options.add_argument("--window-size=1920,1080")
+    edge_options.add_argument("--start-maximized")
     edge_options.add_experimental_option("detach", True)  # Чтобы браузер не закрывался
 
     # Находим все файлы с аккаунтами
@@ -114,47 +114,59 @@ def main():
     
     if not account_files:
         print("Не найдено файлов с аккаунтами для удаления / No account files found to delete")
+        input("\nНажмите Enter чтобы закрыть программу... / Press Enter to close the program...")
         return
 
-    for file_path in account_files:
-        try:
-            # Извлекаем данные из файла
-            email, password = parse_account_file(file_path)
-            print(f"\nОбрабатываем аккаунт / Processing the account: {email}")
+    try:
+        for file_path in account_files:
+        
+            try:
+        
+                # Извлекаем данные из файла
+                email, password = parse_account_file(file_path)
+                print(f"\nОбрабатываем аккаунт / Processing the account: {email}")
 
-            # Инициализация драйвера
-            driver = webdriver.Edge(
-                service=Service("msedgedriver.exe"),
-                options=edge_options
-            )
+                # Инициализация драйвера
+                driver = webdriver.Edge(
+                    service=Service("msedgedriver.exe"),
+                    options=edge_options
+                )
 
-            # Логинимся
-            if not login_account(driver, email, password):
-                print(f"Не удалось войти в аккаунт {email} / Failed to log into your account {email}")
-                os.remove(file_path)
-                print(f"Файл {file_path} удален / File {file_path} has been deleted")
+                # Логинимся
+                if not login_account(driver, email, password):
+                    print(f"Не удалось войти в аккаунт {email} / Failed to log into your account {email}")
+                    os.remove(file_path)
+                    print(f"Файл {file_path} удален / File {file_path} has been deleted")
+                    driver.quit()
+                    continue
+
+                # Удаляем аккаунт
+                if delete_account(driver, password):
+                    print(f"Аккаунт {email} успешно удален / Account {email} successfully deleted")
+                    # Удаляем файл после успешного удаления
+                    os.remove(file_path)
+                    print(f"Файл {file_path} удален / File {file_path} has been deleted")
+                else:
+                    print(f"Не удалось удалить аккаунт {email} / Failed to delete account {email}")
+                    os.remove(file_path)
+                    print(f"Файл {file_path} удален / File {file_path} has been deleted")
+
+                # Закрываем браузер
                 driver.quit()
-                continue
+                time.sleep(2)  # Пауза между обработкой аккаунтов
 
-            # Удаляем аккаунт
-            if delete_account(driver, password):
-                print(f"Аккаунт {email} успешно удален / Account {email} successfully deleted")
-                # Удаляем файл после успешного удаления
-                os.remove(file_path)
-                print(f"Файл {file_path} удален / File {file_path} has been deleted")
-            else:
-                print(f"Не удалось удалить аккаунт {email} / Failed to delete account {email}")
-                os.remove(file_path)
-                print(f"Файл {file_path} удален / File {file_path} has been deleted")
+            except Exception as e:
+                print(f"Ошибка при обработке файла {file_path} / Error processing file {file_path}: {str(e)}")
+                if 'driver' in locals():
+                    driver.quit()
 
-            # Закрываем браузер
-            driver.quit()
-            time.sleep(2)  # Пауза между обработкой аккаунтов
-
-        except Exception as e:
-            print(f"Ошибка при обработке файла {file_path} / Error processing file {file_path}: {str(e)}")
-            if 'driver' in locals():
-                driver.quit()
+        # Когда файлы закончились
+        input("\nНажмите Enter чтобы закрыть программу... / Press Enter to close the program...")
+        
+    except KeyboardInterrupt:
+        print("\nПрограмма прервана пользователем / Program interrupted by user")
+        if driver is not None:
+            driver.quit()        
 
 if __name__ == "__main__":
     main()
