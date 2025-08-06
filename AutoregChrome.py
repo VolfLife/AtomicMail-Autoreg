@@ -10,7 +10,17 @@ import msvcrt
 import string
 import time
 import winreg
+import json
 import os
+
+# Настройки по умолчанию
+DEFAULT_SETTINGS = {
+    "reg_cycle": False,
+    "cycle_sec": 15,
+    "del_acc": True,
+    "new_acc": True
+}
+
 
 # Генерация случайных данных
 def random_name(length=6):
@@ -32,6 +42,29 @@ def random_password(length=12):
     random.shuffle(password)
     return ''.join(password)
 
+def load_settings():
+    """Загружает настройки из файла или создает файл с настройками по умолчанию"""
+    settings_file = "autoreg_settings.json"
+    if os.path.exists(settings_file):
+        try:
+            with open(settings_file, "r") as f:
+                settings = json.load(f)
+                # Проверяем наличие всех ключей
+                for key in DEFAULT_SETTINGS:
+                    if key not in settings:
+                        settings[key] = DEFAULT_SETTINGS[key]
+                return settings
+        except Exception as e:
+            print(f"Ошибка чтения настроек, используются настройки по умолчанию: {e}")
+    else:
+        try:
+            with open(settings_file, "w") as f:
+                json.dump(DEFAULT_SETTINGS, f, indent=4)
+            print("Создан файл настроек с параметрами по умолчанию")
+        except Exception as e:
+            print(f"Ошибка создания файла настроек: {e}")
+    
+    return DEFAULT_SETTINGS
 
 def find_chrome_path():
     try:
@@ -58,6 +91,9 @@ def find_chrome_path():
     return None
     
 def main():
+
+    settings = load_settings()
+    
     chrome_options = Options()
 
     chrome_path = find_chrome_path()
@@ -89,54 +125,39 @@ def main():
         success, email, password = register_account(driver)
     
         if success:
-            timeout = 15  # Время ожидания в секундах
-            print(f"\nСоздать еще один аккаунт? / Create another account? (y/n) [Автоматический выбор 'y' через {timeout} сек.]: ", end='', flush=True)
-            
-            start_time = time.time()
-            choice = None
-            
-            while (time.time() - start_time) < timeout:
-                remaining = int(timeout - (time.time() - start_time))
-                print(f"\rОсталось: {remaining} сек. / Time left: {remaining} sec.", end='', flush=True)
-                
-                if msvcrt.kbhit():  # Если была нажата клавиша
-                    char = msvcrt.getch().decode('utf-8').lower()
-                    if char == 'y':
-                        choice = char
-                        break
-                    else:
-                        choice = "close"
-                        break
-                time.sleep(0.1)  # Небольшая задержка, чтобы не нагружать CPU
-            
-            if choice is None:
-                print("\n\nВремя вышло, продолжаем... / Time's up, continuing...")
-                choice = 'y'
-            else:
-                print("\n")  # Переход на новую строку после ввода
-            
-            if choice == 'y':
+            if settings["reg_cycle"]:
+                # Режим автоматического цикла
+                timeout = settings["cycle_sec"]
+                print(f"\nАвтоматическое продолжение через {timeout} сек... / Automatically continue in {timeout} sec...")
+                time.sleep(timeout)
                 driver.quit()
                 continue
             else:
-                delete_choice = input("Удалить созданный аккаунт? / Delete the created account? (y/n): ").lower()
-                if delete_choice == 'y':
-                    if delete_account(driver, password):
-                        print("Аккаунт был успешно удален / The account was successfully deleted")
-                    else:
-                        print("Не удалось удалить аккаунт / Failed to remove the account")                
-                choice = input("\nСоздать еще один аккаунт? / Create another account? (y/n): ").lower()
-                if choice == 'y':
-                    driver.quit()
-                    continue
-                else:
-                    input("\nНажмите Enter чтобы закрыть браузер... / Click Enter to close the browser ...")
-                    driver.quit()
-                    break
+                # Режим ручного управления
+                if settings["new_acc"]:
+                    # Просто спрашиваем, без таймера
+                    choice = input("\nСоздать еще один аккаунт? / Create another account? (y/n): ").lower()
+                    if choice == 'y':
+                        driver.quit()
+                        continue
+                
+                if settings["del_acc"] and not settings["reg_cycle"]:
+                    delete_choice = input("Удалить созданный аккаунт? / Delete the created account? (y/n): ").lower()
+                    if delete_choice == 'y':
+                        if delete_account(driver, password):
+                            print("Аккаунт был успешно удален / The account was successfully deleted")
+                        else:
+                            print("Не удалось удалить аккаунт / Failed to remove the account")
+                
+                # Если все опции выключены или пользователь отказался от продолжения
+                input("\nНажмите Enter чтобы закрыть браузер... / Click Enter to close the browser ...")
+                driver.quit()
+                break
         else:
+            # Если регистрация не удалась
             input("\nНажмите Enter чтобы закрыть браузер... / Click Enter to close the browser ...")
             driver.quit()
-            break
+            break            
 
 
 def register_account(driver):
@@ -201,10 +222,11 @@ def register_account(driver):
                 break
             time.sleep(2)
 
-        # Ожидание капчи (максимум 60 секунд)
+        # Ожидание капчи (бесконечно, пока пользователь не решит)
         print("Ожидаем капчу / Waiting for captcha...")
-        start_time = time.time()
-        while time.time() - start_time < 60:
+        print("Пожалуйста, решите капчу в браузере / Please solve the captcha in the browser")
+        
+        while True:
             try:
                 # Проверяем, появилась ли кнопка "Sign in now!"
                 WebDriverWait(driver, 5).until(
@@ -214,22 +236,29 @@ def register_account(driver):
                 print("Капча пройдена / Captcha passed!")
                 break
             except:
+                # Проверяем, не появилось ли сообщение об ошибке
+                try:
+                    error_msg = driver.find_element(By.XPATH, '//*[contains(text(), "error") or contains(text(), "неверно")]')
+                    if error_msg:
+                        print("Обнаружена ошибка при решении капчи. Пожалуйста, попробуйте снова.")
+                        print("Error detected in captcha solving. Please try again.")
+                except:
+                    pass
                 time.sleep(1)
                 continue
-        else:
-            print("Не удалось дождаться прохождения капчи за 60 секунд \nFailed to wait for the captcha to be solved in 60 seconds")
+                
+        # Сохранение данных в файл
+        random_id = ''.join(random.choices(string.ascii_letters + string.digits, k=9))
+        filename = f"autoreg_{email}.txt"
+        with open(filename, "w") as file:
+            file.write(f"login: {email}@atomicmail.io\npassword: {password}\n{email}@atomicmail.io:{password}")
+        print(f"Данные сохранены в {filename}")
 
         # 8. Нажатие кнопки Sign in now
         WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.CSS_SELECTOR, 'button._submit_w8uxz_61'))
         ).click()
 
-        # 9. Сохранение данных в файл
-        random_id = ''.join(random.choices(string.ascii_letters + string.digits, k=9))
-        filename = f"autoreg_{email}.txt"
-        with open(filename, "w") as file:
-            file.write(f"login: {email}@atomicmail.io\npassword: {password}\n{email}@atomicmail.io:{password}")
-        print(f"Данные сохранены в {filename}")
 
         # Авторизация в новом окне
         #driver.execute_script("window.open('');")
