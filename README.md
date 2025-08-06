@@ -14,6 +14,8 @@
 
 - Removing the created account
 
+- JSON configuration with behavior settings
+
 ## Usage
 
 1. Install [Python 3.6+](https://www.python.org/downloads/windows/) and pip
@@ -28,15 +30,15 @@ pip install selenium webdriver_manager
 
 	For **Microsoft Edge**:
 
-	Check version `edge://settings/help` and download [Edge WebDriver](https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/) matching your Edge version
+	>Check version `edge://settings/help` and download [Edge WebDriver](https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/) matching your Edge version
 
 	For **Chrome**/**Brave**:
 
-	Check version `chrome://settings/helpDownload` and download [СhromeDriver](https://developer.chrome.com/docs/chromedriver/downloads) matching your Chrome/Brave version
+	>Check version `chrome://settings/helpDownload` and download [СhromeDriver](https://developer.chrome.com/docs/chromedriver/downloads) matching your Chrome/Brave version
 	
-	For **Firefox**:
+	For **Mozilla Firefox**:
 
-	Check version (open the browser and click on the menu button (three horizontal lines) in the top right corner, select "Help" and then "About Firefox") and download [GeckoDriver](https://github.com/mozilla/geckodriver/releases) matching your Firefox version
+	>Check version *(open the browser and click on the menu button (three horizontal lines) in the top right corner, select "Help" and then "About Firefox")* and download [GeckoDriver](https://github.com/mozilla/geckodriver/releases) matching your Firefox version
 
 5. Run the script by double clicking or in the terminal/command prompt:
 
@@ -46,4 +48,4 @@ python AutoregEdge.py
 
 5. Manually solve the CAPTCHA when prompted. Script will automatically continue after solving.
 
-6. Credentials will be saved in `autoreg_XXXXXXXXX.txt` file in the script directory.
+6. Credentials will be saved in `autoreg_{email}.txt` file in the script directory.
